@@ -52,7 +52,7 @@ function GeneratedSet({
     editLoadout(loadout, { showClass: false });
   };
 
-  const numSets = _.sumBy(set.sets, (setSlice) => getNumValidSets(setSlice.armor));
+  const numSets = getNumValidSets(set.sets.armor);
   if (!numSets) {
     console.error('No valid sets!');
     return null;
@@ -140,7 +140,7 @@ function GeneratedSet({
             key={item.index}
             item={item}
             defs={defs}
-            itemOptions={set.sets.flatMap((subSet) => subSet.armor[index])}
+            itemOptions={set.sets.armor[index]}
             locked={lockedMap[item.bucket.hash]}
             lbDispatch={lbDispatch}
             statValues={set.firstValidSetStatChoices[index]}

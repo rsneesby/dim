@@ -11,6 +11,7 @@ import _ from 'lodash';
 import { editLoadout } from 'app/loadout/LoadoutDrawer';
 import UserGuideLink from 'app/dim-ui/UserGuideLink';
 import { LoadoutBuilderAction } from '../loadoutBuilderReducer';
+import { statTier } from './utils';
 
 interface Props {
   selectedStore: DimStore;
@@ -102,12 +103,19 @@ export default class GeneratedSets extends React.Component<Props, State> {
       measureSet = _.maxBy(sets, numColumns);
     }
 
+    const statMixCount = Object.keys(
+      _.groupBy(sets, (set) =>
+        JSON.stringify(Object.values(set.stats).map((stat) => statTier(stat)))
+      )
+    ).length;
+
     return (
       <div className={styles.sets}>
         <h2>
           {t('LoadoutBuilder.GeneratedBuilds')}{' '}
           <span className={styles.numSets}>
-            ({t('LoadoutBuilder.NumStatMixes', { count: sets.length })})
+            ({t('LoadoutBuilder.NumStatMixes', { count: statMixCount })},{' '}
+            {t('LoadoutBuilder.NumBuilds', { count: sets.length })})
           </span>
           <button
             className={`dim-button ${styles.newLoadout}`}

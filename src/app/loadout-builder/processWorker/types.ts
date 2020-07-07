@@ -53,7 +53,7 @@ export interface ProcessArmorSet {
     /** The chosen stats for each armor type, as a list in the order Mobility/Resiliency/Recovery. */
     readonly statChoices: readonly number[][];
     readonly maxPower: number;
-  }[];
+  };
 
   /** The first (highest-power) valid set from this stat mix. */
   readonly firstValidSet: readonly string[];
@@ -78,7 +78,7 @@ export interface IntermediateProcessArmorSet {
     /** The chosen stats for each armor type, as a list in the order Mobility/Resiliency/Recovery. */
     statChoices: number[][];
     maxPower: number;
-  }[];
+  };
 
   /** The first (highest-power) valid set from this stat mix. */
   firstValidSet: ProcessItem[];

@@ -25,7 +25,7 @@ const RETURNED_ARMOR_SETS = 200;
 
 type SetTracker = {
   tier: number;
-  statMixes: { statMix: string; armorSet: IntermediateProcessArmorSet }[];
+  statMixes: { statMix: string; armorSets: IntermediateProcessArmorSet[] }[];
 }[];
 
 function insertIntoSetTracker(
@@ -35,7 +35,7 @@ function insertIntoSetTracker(
   setTracker: SetTracker
 ): void {
   if (setTracker.length === 0) {
-    setTracker.push({ tier, statMixes: [{ statMix, armorSet }] });
+    setTracker.push({ tier, statMixes: [{ statMix, armorSets: [armorSet] }] });
     return;
   }
 
@@ -43,7 +43,7 @@ function insertIntoSetTracker(
     const currentTier = setTracker[tierIndex];
 
     if (tier > currentTier.tier) {
-      setTracker.splice(tierIndex, 0, { tier, statMixes: [{ statMix, armorSet }] });
+      setTracker.splice(tierIndex, 0, { tier, statMixes: [{ statMix, armorSets: [armorSet] }] });
       return;
     }
 
@@ -54,31 +54,25 @@ function insertIntoSetTracker(
         const currentStatMix = currentStatMixes[statMixIndex];
 
         if (statMix > currentStatMix.statMix) {
-          currentStatMixes.splice(statMixIndex, 0, { statMix, armorSet });
+          currentStatMixes.splice(statMixIndex, 0, { statMix, armorSets: [armorSet] });
           return;
         }
 
         if (currentStatMix.statMix === statMix) {
-          if (armorSet.maxPower > currentStatMix.armorSet.maxPower) {
-            currentStatMix.armorSet.sets = armorSet.sets.concat(currentStatMix.armorSet.sets);
-            currentStatMix.armorSet.firstValidSet = armorSet.firstValidSet;
-            currentStatMix.armorSet.maxPower = armorSet.maxPower;
-            currentStatMix.armorSet.firstValidSetStatChoices = armorSet.firstValidSetStatChoices;
-          } else {
-            currentStatMix.armorSet.sets = currentStatMix.armorSet.sets.concat(armorSet.sets);
-          }
+          // do we care about insertion sort here?
+          currentStatMix.armorSets.push(armorSet);
           return;
         }
 
         if (statMixIndex === currentStatMixes.length - 1) {
-          currentStatMixes.push({ statMix, armorSet });
+          currentStatMixes.push({ statMix, armorSets: [armorSet] });
           return;
         }
       }
     }
 
     if (tierIndex === setTracker.length - 1) {
-      setTracker.push({ tier, statMixes: [{ statMix, armorSet }] });
+      setTracker.push({ tier, statMixes: [{ statMix, armorSets: [armorSet] }] });
       return;
     }
   }
@@ -298,13 +292,12 @@ export function process(
                 }
               }
               const newArmorSet: IntermediateProcessArmorSet = {
-                sets: [
-                  {
-                    armor,
-                    statChoices,
-                    maxPower,
-                  },
-                ],
+                sets: {
+                  armor,
+                  statChoices,
+                  maxPower,
+                },
+
                 stats: stats as {
                   [statType in StatTypes]: number;
                 },
@@ -321,10 +314,10 @@ export function process(
                 const lowestTierSet = setTracker[setTracker.length - 1];
                 const worstMix = lowestTierSet.statMixes[lowestTierSet.statMixes.length - 1];
 
-                worstMix.armorSet.sets.pop();
+                worstMix.armorSets.pop();
                 setCount--;
 
-                if (worstMix.armorSet.sets.length === 0) {
+                if (worstMix.armorSets.length === 0) {
                   lowestTierSet.statMixes.pop();
 
                   if (lowestTierSet.statMixes.length === 0) {
@@ -340,7 +333,7 @@ export function process(
     }
   }
 
-  const finalSets = setTracker.map((set) => set.statMixes.map((mix) => mix.armorSet)).flat();
+  const finalSets = setTracker.map((set) => set.statMixes.map((mix) => mix.armorSets)).flat(2);
 
   console.log(
     'found',
@@ -575,10 +568,10 @@ function getBaseStatValues(
 function flattenSets(sets: IntermediateProcessArmorSet[]): ProcessArmorSet[] {
   return sets.map((set) => ({
     ...set,
-    sets: set.sets.map((armorSet) => ({
-      ...armorSet,
-      armor: armorSet.armor.map((items) => items.map((item) => item.id)),
-    })),
+    sets: {
+      ...set.sets,
+      armor: set.sets.armor.map((items) => items.map((item) => item.id)),
+    },
     firstValidSet: set.firstValidSet.map((item) => item.id),
   }));
 }

@@ -206,17 +206,13 @@ function mapDimItemToProcessItem(dimItem: D2Item): ProcessItem {
 }
 
 export function hydrateArmorSet(processed: ProcessArmorSet, itemsById: ItemsById): ArmorSet {
-  const sets: ArmorSet['sets'] = [];
+  const armor: DimItem[][] = [];
 
-  for (const processSet of processed.sets) {
-    const armor: DimItem[][] = [];
-
-    for (const itemIds of processSet.armor) {
-      armor.push(itemIds.map((id) => itemsById[id]));
-    }
-
-    sets.push({ armor, statChoices: processSet.statChoices });
+  for (const itemIds of processed.sets.armor) {
+    armor.push(itemIds.map((id) => itemsById[id]));
   }
+
+  const sets: ArmorSet['sets'] = { armor, statChoices: processed.sets.statChoices };
 
   const firstValidSet: DimItem[] = processed.firstValidSet.map((id) => itemsById[id]);
 

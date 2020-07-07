@@ -99,7 +99,7 @@ export interface ArmorSet {
     readonly armor: readonly DimItem[][];
     /** The chosen stats for each armor type, as a list in the order Mobility/Resiliency/Recovery. */
     readonly statChoices: readonly number[][];
-  }[];
+  };
 
   /** The first (highest-power) valid set from this stat mix. */
   readonly firstValidSet: readonly DimItem[];
