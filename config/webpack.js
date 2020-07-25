@@ -505,7 +505,6 @@ module.exports = (env) => {
           prior_commit: process.env.GITHUB.EVENT.PULL_REQUEST.BASE.SHA,
         });
       }
-      // github.event.pull_request.head.sha
       config.plugins.push(new PacktrackerPlugin(packOptions));
     }
   }
